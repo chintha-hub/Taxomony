@@ -1,0 +1,13 @@
+# Streamlit UI configuration (safe to commit — no secrets here).
+[theme]
+primaryColor = "#C2185B"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F5F0F2"
+textColor = "#1A1A1A"
+font = "sans serif"
+
+[server]
+maxUploadSize = 10
+
+[browser]
+gatherUsageStats = false

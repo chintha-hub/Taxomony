@@ -9,6 +9,15 @@ then environment variables / .env. Set OPENAI_API_KEY or GOOGLE_API_KEY in eithe
 from __future__ import annotations
 
 import os
+import sys
+from pathlib import Path
+
+# Make the src/ layout importable even when the package isn't pip-installed.
+# Streamlit Community Cloud only installs requirements.txt (not the local
+# package), so without this the `fashion_taxonomy` import would fail.
+_SRC_DIR = Path(__file__).resolve().parent.parent / "src"
+if _SRC_DIR.is_dir() and str(_SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(_SRC_DIR))
 
 import streamlit as st
 

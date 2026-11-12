@@ -117,12 +117,14 @@ def main() -> None:
             data=taxonomy.model_dump_json(indent=2),
             file_name=f"{stem}_taxonomy.json",
             mime="application/json",
+            on_click="ignore",
         )
         c2.download_button(
             "⬇️ Download text",
             data=to_text(taxonomy),
             file_name=f"{stem}_taxonomy.txt",
             mime="text/plain",
+            on_click="ignore",
         )
 
 

@@ -15,12 +15,7 @@ logger = get_logger(__name__)
 
 
 class GeminiProvider(VisionProvider):
-    """Analyze images with Google Gemini vision models (e.g. ``gemini-1.5-flash``).
-
-    Requests ``application/json`` output and embeds the JSON schema in the
-    prompt, then validates the response against :class:`FashionTaxonomy`. This
-    keeps the provider robust across ``google-generativeai`` versions.
-    """
+    """Analyze images with Google Gemini vision models."""
 
     name = "gemini"
 
@@ -64,28 +59,28 @@ class GeminiProvider(VisionProvider):
                 ),
                 request_options={"timeout": self._timeout},
             )
-        except Exception as exc:  # noqa: BLE001 - normalize all SDK errors
+        except Exception as exc:  # noqa: BLE001
             raise ProviderError(f"Gemini request failed: {exc}") from exc
 
         text = (getattr(response, "text", "") or "").strip()
         if not text:
             raise ProviderError("Gemini returned an empty response.")
-            
+
         try:
             payload = json.loads(text)
             if isinstance(payload, dict):
                 trend_analysis = payload.get("trend_analysis")
                 market_positioning = payload.get("market_positioning")
-                
-             if (
-                isinstance(trend_analysis, dict)
-                and isinstance(market_positioning, dict)
-                and "comparable_brands" in trend_analysis
-             ):
-                 misplaced_brands = trend_analysis.pop("comparable_brands")
-                 market_positioning.setdefault("comparable_brands", misplaced_brands)
-                 text = json.dumps(payload)
 
-         return FashionTaxonomy.model_validate_json(text)
+                if (
+                    isinstance(trend_analysis, dict)
+                    and isinstance(market_positioning, dict)
+                    and "comparable_brands" in trend_analysis
+                ):
+                    misplaced_brands = trend_analysis.pop("comparable_brands")
+                    market_positioning.setdefault("comparable_brands", misplaced_brands)
+                    text = json.dumps(payload)
+
+            return FashionTaxonomy.model_validate_json(text)
         except ValueError as exc:
             raise ProviderError(f"Gemini returned data that failed validation: {exc}") from exc

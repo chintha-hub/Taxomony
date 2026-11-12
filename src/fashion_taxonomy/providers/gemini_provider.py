@@ -70,7 +70,21 @@ class GeminiProvider(VisionProvider):
         text = (getattr(response, "text", "") or "").strip()
         if not text:
             raise ProviderError("Gemini returned an empty response.")
-        try:
-            return FashionTaxonomy.model_validate_json(text)
-        except ValueError as exc:
-            raise ProviderError(f"Gemini returned data that failed validation: {exc}") from exc
+             try:
+         payload = json.loads(text)
+         if isinstance(payload, dict):
+             trend_analysis = payload.get("trend_analysis")
+             market_positioning = payload.get("market_positioning")
+
+             if (
+                 isinstance(trend_analysis, dict)
+                 and isinstance(market_positioning, dict)
+                 and "comparable_brands" in trend_analysis
+             ):
+                 misplaced_brands = trend_analysis.pop("comparable_brands")
+                 market_positioning.setdefault("comparable_brands", misplaced_brands)
+                 text = json.dumps(payload)
+
+         return FashionTaxonomy.model_validate_json(text)
+     except ValueError as exc:
+         raise ProviderError(f"Gemini returned data that failed validation: {exc}") from exc
